@@ -3,7 +3,7 @@ function InitializeControl(controlId) {
 }
 
 function InitializeFileDragAndDrop() {
-    nodes = window.parent.document.querySelectorAll('div[controlname="FDD Drag & Drop Factbox"]'); //find all controls by page name
+    nodes = window.parent.document.querySelectorAll('div[controlname="Drag & Drop FactBox"]'); //find all controls by page name
     FactBox = nodes[nodes.length - 1]; //get last control
     
     // Prevent default drag behaviors
@@ -33,7 +33,7 @@ function preventDefaults (e) {
 }
 
 function highlight(e) {
-    FactBox.style.border = "thick dotted blue";
+    FactBox.style.border = "thick dotted #00838F";
 }
 
 function unhighlight(e) {

@@ -1,17 +1,19 @@
-page 81700 "FDD Drag & Drop Factbox"
+page 81700 "Drag & Drop FactBox"
 {
-    Caption = 'Content Drag & Drop';
+    Caption = 'Content Drag & Drop', comment = 'ESP="Arrastrar y soltar"';
     PageType = ListPart;
     UsageCategory = None;
     SourceTable = "Document Attachment";
     InsertAllowed = false;
     ModifyAllowed = false;
     RefreshOnActivate = true;
+    Permissions = TableData "Document Attachment" = rm;
+
     layout
     {
         area(content)
         {
-            usercontrol(FileDragAndDrop; "FDD File Drag and Drop")
+            usercontrol(FileDragAndDrop; "File Drag and Drop")
             {
                 ApplicationArea = All;
 
@@ -32,7 +34,7 @@ page 81700 "FDD Drag & Drop Factbox"
                     TempBlob.CreateInStream(FileInStream, TextEncoding::UTF8);
 
                     Rec.ID := 0;
-                    Rec.SaveAttachmentFromStream(FileInStream, GetSourceRecRef(), FileName);
+                    Rec.SaveAttachmentFromStream(FileInStream, GetSourceRecRefPK1(), FileName);
 
                     if IsLastFile then
                         CurrPage.Update(false);
@@ -44,12 +46,20 @@ page 81700 "FDD Drag & Drop Factbox"
                 field("File Name"; Rec."File Name")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the File Name field.';
+                    ToolTip = 'Specifies the value of the File Name field.', comment = 'ESP="Especifica el nombre del archivo."';
+
+                    trigger OnDrillDown()
+                    begin
+                        if SupportedByFileViewer() then
+                            ViewFile()
+                        else
+                            Rec.Export(true);
+                    end;
                 }
                 field("File Extension"; Rec."File Extension")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the File Extensions field.';
+                    ToolTip = 'Specifies the value of the File Extensions field.', comment = 'ESP="Especifica la extensión del archivo."';
                 }
             }
         }
@@ -61,12 +71,9 @@ page 81700 "FDD Drag & Drop Factbox"
             action(DownloadFile)
             {
                 ApplicationArea = All;
-                Caption = 'Download File';
-                ToolTip = 'Download File';
+                Caption = 'Download File', comment = 'ESP="Descargar archivo"';
+                ToolTip = 'Download File', comment = 'ESP="Descargar archivo"';
                 Image = Download;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 Enabled = Rec."File Name" <> '';
                 trigger OnAction()
                 begin
@@ -76,22 +83,40 @@ page 81700 "FDD Drag & Drop Factbox"
         }
     }
 
-    local procedure GetSourceRecRef(): RecordRef
+    local procedure GetSourceRecRefPK1(): RecordRef
     var
         RecRef: RecordRef;
         FieldRefNo: FieldRef;
         TableNo: Integer;
         TablePK: Text;
+        FieldId: Integer;
     begin
         Rec.FilterGroup(4);
         Evaluate(TableNo, Rec.GetFilter("Table ID"));
         Evaluate(TablePK, Rec.GetFilter("No."));
         RecRef.Open(TableNo);
-        FieldRefNo := RecRef.Field(1);
+
+        FieldId := GetFieldIdByName(RecRef, 'No.');
+        if FieldId = 0 then
+            Error('El campo "No." no se encuentra en la tabla con ID %1.', TableNo);
+
+        FieldRefNo := RecRef.Field(FieldId);
         FieldRefNo.SetRange(TablePK);
+
         RecRef.FindFirst();
         Rec.FilterGroup(0);
         exit(RecRef);
+    end;
+
+
+    local procedure GetFieldIdByName(RecRef: RecordRef; FieldName: Text): Integer
+    var
+        DataTypeManagement: Codeunit "Data Type Management";
+        FldRef: FieldRef;
+    begin
+        if DataTypeManagement.FindFieldByName(RecRef, FldRef, FieldName) then
+            exit(FldRef.Number);
+        exit(0);
     end;
 
     procedure FDDExport(ShowFileDialog: Boolean): Text
@@ -111,5 +136,32 @@ page 81700 "FDD Drag & Drop Factbox"
         TempBlob.CreateOutStream(DocumentStream);
         Rec."Document Reference ID".ExportStream(DocumentStream);
         exit(FileManagement.BLOBExport(TempBlob, FullFileName, ShowFileDialog));
+    end;
+
+    internal procedure SupportedByFileViewer(): Boolean
+    begin
+        case Rec."File Type" of
+            Rec."File Type"::PDF:
+                exit(true);
+            Rec."File Type"::" ":
+                begin
+                    if Rec."File Extension" <> '' then
+                        exit(LowerCase(Rec."File Extension") = 'pdf');
+
+                    exit(Lowercase(Rec."File Name").EndsWith('pdf'))
+                end;
+            else
+                exit(false);
+        end;
+    end;
+
+    internal procedure ViewFile()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        FileInStream: InStream;
+    begin
+        Rec.GetAsTempBlob(TempBlob);
+        TempBlob.CreateInStream(FileInStream);
+        File.ViewFromStream(FileInStream, Rec."File Name" + '.' + Rec."File Extension", true);
     end;
 }

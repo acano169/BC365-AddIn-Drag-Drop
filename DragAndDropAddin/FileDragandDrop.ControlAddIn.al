@@ -1,4 +1,4 @@
-controladdin "FDD File Drag and Drop"
+controladdin "File Drag and Drop"
 {
     Scripts = 'https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js',
         'DragAndDropAddin/script.js';
