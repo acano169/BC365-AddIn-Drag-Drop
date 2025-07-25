@@ -3,8 +3,8 @@ function InitializeControl(controlId) {
 }
 
 function InitializeFileDragAndDrop() {
-    nodes = window.parent.document.querySelectorAll('div[controlname="Drag & Drop FactBox"]'); //find all controls by page name
-    FactBox = nodes[nodes.length - 1]; //get last control
+    nodes = window.parent.document.querySelectorAll('div[controlname="Drag & Drop FactBox"]'); // Find all controls by page name
+    FactBox = nodes[nodes.length - 1]; //Get last control
     
     // Prevent default drag behaviors
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -17,7 +17,7 @@ function InitializeFileDragAndDrop() {
         FactBox.addEventListener(eventName, highlight, false)
     });
   
-    //Unhiglight
+    // Unhiglight
     ['dragleave', 'drop'].forEach(eventName => {
         FactBox.addEventListener(eventName, unhighlight, false)
     });

@@ -1,7 +1,7 @@
 controladdin "File Drag and Drop"
 {
     Scripts = 'https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js',
-        'DragAndDropAddin/script.js';
+        'DragAndDropAddin/Script.js';
     StartupScript = 'DragAndDropAddin/Startup.js';
 
     RequestedHeight = 1;
