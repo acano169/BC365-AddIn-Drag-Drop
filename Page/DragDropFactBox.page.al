@@ -29,6 +29,8 @@ page 81700 "Drag & Drop FactBox"
                     FileInStream: InStream;
                     FileOutStream: OutStream;
                 begin
+                    //CheckCompanyChange();
+
                     TempBlob.CreateOutStream(FileOutStream, TextEncoding::UTF8);
                     Base64Convert.FromBase64(FileAsText.Substring(FileAsText.IndexOf(',') + 1), FileOutStream);
                     TempBlob.CreateInStream(FileInStream, TextEncoding::UTF8);
@@ -50,8 +52,9 @@ page 81700 "Drag & Drop FactBox"
 
                     trigger OnDrillDown()
                     begin
-                        if SupportedByFileViewer() then
-                            ViewFile()
+                        //CheckCompanyChange();
+                        if this.SupportedByFileViewer() then
+                            this.ViewFile()
                         else
                             Rec.Export(true);
                     end;
@@ -77,6 +80,7 @@ page 81700 "Drag & Drop FactBox"
                 Enabled = Rec."File Name" <> '';
                 trigger OnAction()
                 begin
+                    //CheckCompanyChange();
                     FDDExport(true);
                 end;
             }
@@ -160,8 +164,28 @@ page 81700 "Drag & Drop FactBox"
         TempBlob: Codeunit "Temp Blob";
         FileInStream: InStream;
     begin
+        //CheckCompanyChange();
         Rec.GetAsTempBlob(TempBlob);
         TempBlob.CreateInStream(FileInStream);
         File.ViewFromStream(FileInStream, Rec."File Name" + '.' + Rec."File Extension", true);
+        this.CurrPage.Update();
+    end;
+
+    procedure CheckCompanyChange()
+    var
+        ICPartner: Record "IC Partner";
+        ICSetup: Record "IC Setup";
+    begin
+        ICSetup.Get();
+        if (ICPartner.FindFirst() and ICPartner."SFK Caudal Intercompany") then begin
+            Rec.ChangeCompany(ICPartner."Inbox Details");
+            if not Rec.GetBySystemId(Rec.SystemId) then
+                exit;
+        end;
+    end;
+
+    trigger OnOpenPage()
+    begin
+        CheckCompanyChange();
     end;
 }

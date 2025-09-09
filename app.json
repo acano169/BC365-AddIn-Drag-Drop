@@ -2,7 +2,7 @@
   "id": "a4414620-6757-4385-8e82-9b3b17a1f3fd",
   "name": "File Drag & Drop FactBox",
   "publisher": "Volodymyr Dvernytskyi",
-  "version": "1.0.0.1",
+  "version": "1.0.0.3",
   "brief": "https://vld-nav.com/",
   "description": "https://vld-nav.com/",
   "privacyStatement": "https://vld-nav.com/",
@@ -17,6 +17,12 @@
       "publisher": "Caudal - Antonio Jesús Cano Andreu",
       "name": "Grupo Caudal - Extensión base",
       "version": "1.1.0.250"
+    },        
+    {
+      "id": "724d57ef-8fe3-449b-b8f8-3fe332c7c67d",
+      "name": "sofkia IC",
+      "publisher": "Sofkia Consultoria y Desarrollo S.L.U.",
+      "version": "1.0.0.10"
     }
   ],
   "screenshots": [],
