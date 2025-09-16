@@ -29,7 +29,7 @@ page 81700 "Drag & Drop FactBox"
                     FileInStream: InStream;
                     FileOutStream: OutStream;
                 begin
-                    //CheckCompanyChange();
+                    CheckCompanyChange();
 
                     TempBlob.CreateOutStream(FileOutStream, TextEncoding::UTF8);
                     Base64Convert.FromBase64(FileAsText.Substring(FileAsText.IndexOf(',') + 1), FileOutStream);
@@ -52,11 +52,12 @@ page 81700 "Drag & Drop FactBox"
 
                     trigger OnDrillDown()
                     begin
-                        //CheckCompanyChange();
+                        CheckCompanyChange();
                         if this.SupportedByFileViewer() then
                             this.ViewFile()
                         else
                             Rec.Export(true);
+                        this.CurrPage.Update();
                     end;
                 }
                 field("File Extension"; Rec."File Extension")
@@ -80,7 +81,7 @@ page 81700 "Drag & Drop FactBox"
                 Enabled = Rec."File Name" <> '';
                 trigger OnAction()
                 begin
-                    //CheckCompanyChange();
+                    CheckCompanyChange();
                     FDDExport(true);
                 end;
             }

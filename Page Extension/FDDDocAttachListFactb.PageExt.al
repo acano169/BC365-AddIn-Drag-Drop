@@ -1,6 +1,6 @@
 pageextension 81720 "FDD Doc. Attach. List Factb." extends "Doc. Attachment List Factbox"
 {
-    /*layout
+    layout
     {
         modify(Name)
         {
@@ -8,12 +8,13 @@ pageextension 81720 "FDD Doc. Attach. List Factb." extends "Doc. Attachment List
             begin
                 CheckCompanyChange();
                 if Rec.SupportedByFileViewer() then
-                    Rec.ViewFile()
+                    this.ViewFile()
                 else
                     Rec.Export(true);
+                CurrPage.Update();
             end;
         }
-    }*/
+    }
 
     actions
     {
@@ -44,7 +45,7 @@ pageextension 81720 "FDD Doc. Attach. List Factb." extends "Doc. Attachment List
         ICPartner: Record "IC Partner";
         ICSetup: Record "IC Setup";
     begin
-        //CheckCompanyChange();
+        CheckCompanyChange();
         ICSetup.Get();
         if (ICPartner.FindFirst() and ICPartner."SFK Caudal Intercompany") then
             IC := true;
@@ -61,6 +62,17 @@ pageextension 81720 "FDD Doc. Attach. List Factb." extends "Doc. Attachment List
             if not Rec.GetBySystemId(Rec.SystemId) then
                 exit;
         end;
+    end;
+
+    internal procedure ViewFile()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        FileInStream: InStream;
+    begin
+        CheckCompanyChange();
+        Rec.GetAsTempBlob(TempBlob);
+        TempBlob.CreateInStream(FileInStream);
+        File.ViewFromStream(FileInStream, Rec."File Name" + '.' + Rec."File Extension", true);
     end;
 
     var
